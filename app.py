@@ -1,39 +1,50 @@
 import gradio as gr
 import numpy as np
+import cv2
 import os
 
-# حاول تستورد face_recognition (لو متوفر)
-try:
-    import face_recognition
-    from src.helpers import load_model, enhance_image
-    model = load_model("model/trained_knn_model.clf")
-    USE_MODEL = True
-except:
-    USE_MODEL = False
+# تحميل الصور المرجعية
+def load_dataset():
+    dataset = {}
 
+    for person in os.listdir("dataset"):
+        person_path = os.path.join("dataset", person)
+        images = []
+
+        for img_name in os.listdir(person_path):
+            img_path = os.path.join(person_path, img_name)
+            img = cv2.imread(img_path)
+            img = cv2.resize(img, (100, 100))
+            images.append(img.flatten())
+
+        dataset[person] = images
+
+    return dataset
+
+dataset = load_dataset()
 
 def predict(image):
     try:
         img = np.array(image)
+        img = cv2.resize(img, (100, 100))
+        img_flat = img.flatten()
 
-        if not USE_MODEL:
-            return "⚠️ Model not available (dlib issue)"
+        best_match = None
+        best_score = float("inf")
 
-        img = enhance_image(img)
+        for person, images in dataset.items():
+            for ref in images:
+                dist = np.linalg.norm(ref - img_flat)
 
-        locs = face_recognition.face_locations(img)
-        if len(locs) == 0:
-            return "No face detected"
+                if dist < best_score:
+                    best_score = dist
+                    best_match = person
 
-        encodings = face_recognition.face_encodings(img, locs)
-        closest_distances = model.kneighbors(encodings, n_neighbors=1)
-
-        if closest_distances[0][0][0] <= 0.5:
-            name = model.predict(encodings)[0]
+        # threshold بسيط
+        if best_score < 5000:
+            return f"✅ This is {best_match}"
         else:
-            name = "Unknown"
-
-        return name
+            return "❌ Unknown"
 
     except Exception as e:
         return f"Error: {str(e)}"
@@ -43,9 +54,8 @@ iface = gr.Interface(
     fn=predict,
     inputs=gr.Image(type="pil"),
     outputs="text",
-    title="Face Recognition App"
+    title="Simple Face Recognition"
 )
-
 
 port = int(os.environ.get("PORT", 3000))
 
