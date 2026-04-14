@@ -20,3 +20,6 @@ def predict():
     for pred, dist in zip(model.predict(encodings), dists):
         results.append({"name": pred if dist[0] <= 0.5 else "unknown"})
     return jsonify({"results": results})
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=7860)
