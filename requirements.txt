@@ -1,7 +1,5 @@
-flask
-gunicorn
+gradio
+face-recognition
 numpy
 scikit-learn
 Pillow
-tqdm
-face-recognition
