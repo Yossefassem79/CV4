@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import os, face_recognition, numpy as np
-from helpers import enhance_image, load_model
+from src.helpers import enhance_image, load_model
 
 import sys
 sys.path.insert(0, 'src')
