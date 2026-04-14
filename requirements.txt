@@ -3,3 +3,6 @@ face-recognition
 numpy
 scikit-learn
 Pillow
+tqdm
+cmake
+dlib
