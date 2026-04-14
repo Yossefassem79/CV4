@@ -57,9 +57,11 @@ iface = gr.Interface(
 )
 
 import os
+
 port = int(os.environ.get("PORT", 3000))
 
 iface.launch(
     server_name="0.0.0.0",
-    server_port=port
+    server_port=port,
+    show_api=False
 )
