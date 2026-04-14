@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 import os, face_recognition, numpy as np
 from helpers import enhance_image, load_model
 
+import sys
+sys.path.insert(0, 'src')
+
 app = Flask(__name__)
 model = load_model("model/trained_knn_model.clf")
 
