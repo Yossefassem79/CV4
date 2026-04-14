@@ -7,7 +7,7 @@ import face_recognition
 from face_recognition.face_recognition_cli import image_files_in_folder
 from tqdm import tqdm  # Progress bar
 
-from helpers import enhance_image
+from src.helpers import enhance_image
 
 
 
