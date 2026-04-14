@@ -1,25 +1,33 @@
-from flask import Flask, request, jsonify
-import os, face_recognition, numpy as np
-from src.helpers import enhance_image, load_model
+import gradio as gr
+import face_recognition
+import numpy as np
+from src.helpers import load_model, enhance_image
 
-
-app = Flask(__name__)
 model = load_model("model/trained_knn_model.clf")
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    file = request.files['image']
-    img = face_recognition.load_image_file(file)
+def predict(image):
+    img = np.array(image)
     img = enhance_image(img)
-    locs = face_recognition.face_locations(img)
-    if not locs:
-        return jsonify({"results": []})
-    encodings = face_recognition.face_encodings(img, locs)
-    dists, _ = model.kneighbors(encodings, n_neighbors=1)
-    results = []
-    for pred, dist in zip(model.predict(encodings), dists):
-        results.append({"name": pred if dist[0] <= 0.5 else "unknown"})
-    return jsonify({"results": results})
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=7860)
+    locs = face_recognition.face_locations(img)
+    if len(locs) == 0:
+        return "No face detected"
+
+    encodings = face_recognition.face_encodings(img, locs)
+    closest_distances = model.kneighbors(encodings, n_neighbors=1)
+
+    if closest_distances[0][0][0] <= 0.5:
+        name = model.predict(encodings)[0]
+    else:
+        name = "Unknown"
+
+    return name
+
+iface = gr.Interface(
+    fn=predict,
+    inputs=gr.Image(type="pil"),
+    outputs="text",
+    title="Face Recognition App"
+)
+
+iface.launch()
