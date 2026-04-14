@@ -3,12 +3,12 @@ import numpy as np
 import cv2
 import os
 
-# تحميل الصور المرجعية
-def load_dataset():
-    dataset = {}
+# تحميل الصور من persons
+def load_persons():
+    persons = {}
 
-    for person in os.listdir("dataset"):
-        person_path = os.path.join("dataset", person)
+    for person in os.listdir("persons"):
+        person_path = os.path.join("persons", person)
         images = []
 
         for img_name in os.listdir(person_path):
@@ -17,11 +17,11 @@ def load_dataset():
             img = cv2.resize(img, (100, 100))
             images.append(img.flatten())
 
-        dataset[person] = images
+        persons[person] = images
 
-    return dataset
+    return persons
 
-dataset = load_dataset()
+persons = load_persons()
 
 def predict(image):
     try:
@@ -32,7 +32,7 @@ def predict(image):
         best_match = None
         best_score = float("inf")
 
-        for person, images in dataset.items():
+        for person, images in persons.items():
             for ref in images:
                 dist = np.linalg.norm(ref - img_flat)
 
@@ -40,7 +40,6 @@ def predict(image):
                     best_score = dist
                     best_match = person
 
-        # threshold بسيط
         if best_score < 5000:
             return f"✅ This is {best_match}"
         else:
@@ -54,9 +53,10 @@ iface = gr.Interface(
     fn=predict,
     inputs=gr.Image(type="pil"),
     outputs="text",
-    title="Simple Face Recognition"
+    title="Face Recognition App"
 )
 
+import os
 port = int(os.environ.get("PORT", 3000))
 
 iface.launch(
