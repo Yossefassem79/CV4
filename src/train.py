@@ -1,10 +1,8 @@
 import os
 from face_recognition_knn_classifier import knnModel
 
-
-train_dir = os.path.join("../", 'augmented_data')
-model_path = os.path.join("../", 'model', 'trained_knn_model.clf')
-
+train_dir = os.path.join('augmented_data')
+model_path = os.path.join('model', 'trained_knn_model.clf')
 
 print("Starting training...")
 
